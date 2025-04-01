@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebOS</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+            height: 100vh;
+            background-color: #0078d7;
+            background-size: cover;
+            background-position: center;
+            user-select: none;
+        }
+
+        /* Login Screen */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .login-form button:hover {
+            background-color: #005fa3;
+        }
+
+        .signup-link {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .signup-link a {
+            color: #0078d7;
+            text-decoration: none;
+        }
+
+        /* Installer */
+        #installer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .installer-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .installer-step {
+            display: none;
+        }
+
+        .installer-step.active {
+            display: block;
+        }
+
+        .installer-step h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .installer-step p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .installer-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .installer-nav button {
+            padding: 10px 20px;
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .installer-nav button:hover {
+            background-color: #005fa3;
+        }
+
+        .installer-nav button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background-color: #eee;
+            margin-top: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #0078d7;
+            width: 0;
+            transition: width 0.3s;
+        }
+
+        /* Desktop */
+        #desktop {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 40px);
+            overflow: hidden;
+        }
+
+        /* Desktop Icons */
+        .desktop-icons {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 80px);
+            grid-gap: 20px;
+            justify-content: start;
+        }
+
+        .desktop-icon {
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .desktop-icon .icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .desktop-icon .icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .desktop-icon .label {
+            color: white;
+            font-size: 12px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Windows */
+        .window {
+            position: absolute;
+            min-width: 300px;
+            min-height: 200px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            resize: both;
+        }
+
+        .window-titlebar {
+            height: 30px;
+            background-color: #0078d7;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            cursor: move;
+        }
+
+        .window-title {
+            flex-grow: 1;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .window-controls {
+            display: flex;
+        }
+
+        .window-control {
+            width: 16px;
+            height: 16px;
+            margin-left: 5px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .window-minimize {
+            background-color: #ffbd44;
+        }
+
+        .window-maximize {
+            background-color: #00ca56;
+        }
+
+        .window-close {
+            background-color: #ff605c;
+        }
+
+        .window-content {
+            flex-grow: 1;
+            padding: 10px;
+            overflow: auto;
+            background-color: white;
+        }
+
+        /* Taskbar */
+        #taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 1000;
+        }
+
+        .start-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .taskbar-items {
+            display: flex;
+            height: 100%;
+            margin-left: 10px;
+        }
+
+        .taskbar-item {
+            height: 100%;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .taskbar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .taskbar-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .taskbar-item i {
+            margin-right: 5px;
+        }
+
+        .system-tray {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .system-tray-item {
+            width: 30px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .system-tray-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .clock {
+            padding: 0 10px;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Start Menu */
+        #start-menu {
+            position: fixed;
+            bottom: 40px;
+            left: 0;
+            width: 300px;
+            height: 400px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-top-right-radius: 5px;
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .start-menu-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .start-menu-search {
+            width: 100%;
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 3px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .start-menu-apps {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .start-menu-app {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .start-menu-app:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .start-menu-app i {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .start-menu-app span {
+            color: white;
+            font-size: 14px;
+        }
+
+        .start-menu-footer {
+            padding: 10px;
+            display: flex;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .start-menu-user {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .start-menu-user-pic {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #666;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .start-menu-user-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .start-menu-user-name {
+            color: white;
+            font-size: 14px;
+        }
+
+        .start-menu-power {
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .start-menu-power:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Context Menu */
+        #context-menu {
+            position: fixed;
+            width: 200px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1002;
+            overflow: hidden;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .context-menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background-color: #ddd;
+            margin: 5px 0;
+        }
+
+        /* Application Styles */
+        /* File Explorer */
+        .file-explorer .window-content {
+            display: flex;
+        }
+
+        .file-explorer-sidebar {
+            width: 200px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+        }
+
+        .file-explorer-sidebar-item {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .file-explorer-sidebar-item:hover {
+            background-color: #e0e0e0;
+        }
+
+        .file-explorer-main {
+            flex-grow: 1;
+            padding: 10px;
+        }
+
+        .file-explorer-address {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+
+        .file-explorer-address input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .file-explorer-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-gap: 10px;
+        }
+
+        .file-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .file-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .file-item-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #0078d7;
+        }
+
+        .file-item-name {
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Text Editor */
+        .text-editor .window-content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-editor-toolbar {
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .text-editor-tool {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+            margin-right: 5px;
+        }
+
+        .text-editor-tool:hover {
+            background-color: #e0e0e0;
+        }
+
+        .text-editor-content {
+            flex-grow: 1;
+            padding: 10px;
+        }
+
+        .text-editor-textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Terminal */
+        .terminal .window-content {
+            padding: 0;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .terminal-output {
+            padding: 10px;
+            white-space: pre-wrap;
+            height: calc(100% - 30px);
+            overflow-y: auto;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            padding: 0 10px 10px;
+        }
+
+        .terminal-prompt {
+            color: #0f0;
+            margin-right: 5px;
+        }
+
+        .terminal-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            outline: none;
+        }
+
+        /* Browser */
+        .browser .window-content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .browser-toolbar {
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+        }
+
+        .browser-nav {
+            display: flex;
+            margin-right: 10px;
+        }
+
+        .browser-nav-button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        .browser-nav-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .browser-address {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+        }
+
+        .browser-address input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .browser-content {
+            flex-grow: 1;
+            border: none;
+        }
+
+        /* Settings */
+        .settings .window-content {
+            display: flex;
+        }
+
+        .settings-sidebar {
+            width: 200px;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+        }
+
+        .settings-sidebar-item {
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .settings-sidebar-item:hover {
+            background-color: #e0e0e0;
+        }
+
+        .settings-sidebar-item.active {
+            background-color: #0078d7;
+            color: white;
+        }
+
+        .settings-main {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        .settings-section {
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .settings-option {
+            margin-bottom: 15px;
+        }
+
+        .settings-option label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .settings-option input[type="text"],
+        .settings-option input[type="color"],
+        .settings-option select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .settings-option input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .wallpaper-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-gap: 10px;
+            margin-top: 10px;
+        }
+
+        .wallpaper-option {
+            height: 60px;
+            border-radius: 3px;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .wallpaper-option.active {
+            border-color: #0078d7;
+        }
+
+        /* Media Player */
+        .media-player .window-content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: #222;
+            color: white;
+        }
+
+        .media-player-video {
+            flex-grow: 1;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .media-player-video video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .media-player-controls {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            background-color: #333;
+        }
+
+        .media-player-button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            margin-right: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .media-player-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .media-player-progress {
+            flex-grow: 1;
+            height: 5px;
+            background-color: #555;
+            margin: 0 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .media-player-progress-bar {
+            height: 100%;
+            background-color: #0078d7;
+            width: 0;
+        }
+
+        .media-player-time {
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        /* Task Manager */
+        .task-manager .window-content {
+            padding: 0;
+        }
+
+        .task-manager-tabs {
+            display: flex;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .task-manager-tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .task-manager-tab:hover {
+            background-color: #e0e0e0;
+        }
+
+        .task-manager-tab.active {
+            background-color: white;
+            border-bottom: 2px solid #0078d7;
+        }
+
+        .task-manager-content {
+            padding: 10px;
+        }
+
+        .task-manager-section {
+            display: none;
+        }
+
+        .task-manager-section.active {
+            display: block;
+        }
+
+        .task-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .task-list th,
+        .task-list td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .task-list th {
+            background-color: #f5f5f5;
+            font-weight: normal;
+        }
+
+        .task-list tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .end-task {
+            padding: 3px 8px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .performance-graph {
+            height: 200px;
+            margin-top: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .performance-graph-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background-color: rgba(0, 120, 215, 0.5);
+            transition: height 0.3s;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1003;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .notification-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #0078d7;
+        }
+
+        .notification-title {
+            flex-grow: 1;
+            font-weight: bold;
+        }
+
+        .notification-close {
+            cursor: pointer;
+            color: #999;
+        }
+
+        .notification-body {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .desktop-icons {
+                grid-template-columns: repeat(auto-fill, 70px);
+                grid-gap: 15px;
+            }
+
+            .desktop-icon {
+                width: 70px;
+            }
+
+            .desktop-icon .icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .window {
+                min-width: 250px;
+            }
+
+            .start-menu {
+                width: 250px;
+            }
+
+            .file-explorer-sidebar {
+                width: 150px;
+            }
+
+            .settings-sidebar {
+                width: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .desktop-icons {
+                grid-template-columns: repeat(auto-fill, 60px);
+                grid-gap: 10px;
+            }
+
+            .desktop-icon {
+                width: 60px;
+            }
+
+            .desktop-icon .icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .window-titlebar {
+                height: 25px;
+            }
+
+            .taskbar {
+                height: 35px;
+            }
+
+            .start-button {
+                width: 35px;
+                height: 35px;
+            }
+
+            .start-menu {
+                width: 100%;
+                left: 0;
+            }
+
+            .file-explorer .window-content,
+            .settings .window-content {
+                flex-direction: column;
+            }
+
+            .file-explorer-sidebar,
+            .settings-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-container">
+            <h2>Welcome to WebOS</h2>
+            <div class="profile-pic">
+                <img src="/placeholder.svg?height=100&width=100" alt="Profile Picture">
+            </div>
+            <div class="login-form">
+                <input type="text" id="username" placeholder="Username">
+                <input type="password" id="password" placeholder="Password">
+                <button id="login-button">Sign In</button>
+            </div>
+            <div class="signup-link">
+                <a href="#" id="show-installer">First time? Set up WebOS</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installer -->
+    <div id="installer">
+        <div class="installer-container">
+            <div class="installer-step active" data-step="1">
+                <h2>Welcome to WebOS</h2>
+                <p>Thank you for choosing WebOS, a complete web-based operating system. This installer will guide you through setting up your personal WebOS environment.</p>
+                <div class="installer-nav">
+                    <button id="installer-next-1">Next</button>
+                </div>
+            </div>
+            <div class="installer-step" data-step="2">
+                <h2>Terms of Service</h2>
+                <p>By using WebOS, you agree to our terms of service. This is a demonstration project and should not be used for storing sensitive information.</p>
+                <div class="installer-nav">
+                    <button id="installer-prev-2">Previous</button>
+                    <button id="installer-next-2">I Agree</button>
+                </div>
+            </div>
+            <div class="installer-step" data-step="3">
+                <h2>Create Your Profile</h2>
+                <p>Set up your user account for WebOS.</p>
+                <input type="text" id="setup-username" placeholder="Username" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <input type="password" id="setup-password" placeholder="Password" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <div class="installer-nav">
+                    <button id="installer-prev-3">Previous</button>
+                    <button id="installer-next-3">Next</button>
+                </div>
+            </div>
+            <div class="installer-step" data-step="4">
+                <h2>Preferences</h2>
+                <p>Customize your WebOS experience.</p>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">Choose a wallpaper:</label>
+                    <select id="setup-wallpaper" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="blue">Blue Gradient</option>
+                        <option value="mountain">Mountain View</option>
+                        <option value="abstract">Abstract Art</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Color theme:</label>
+                    <select id="setup-theme" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="blue">Blue (Default)</option>
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                    </select>
+                </div>
+                <div class="installer-nav">
+                    <button id="installer-prev-4">Previous</button>
+                    <button id="installer-next-4">Next</button>
+                </div>
+            </div>
+            <div class="installer-step" data-step="5">
+                <h2>Installing WebOS</h2>
+                <p>Setting up your personal WebOS environment...</p>
+                <div class="progress-bar">
+                    <div class="progress" id="install-progress"></div>
+                </div>
+                <div class="installer-nav">
+                    <button id="installer-next-5" disabled>Next</button>
+                </div>
+            </div>
+            <div class="installer-step" data-step="6">
+                <h2>Installation Complete</h2>
+                <p>WebOS has been successfully installed. Click "Finish" to log in to your new system.</p>
+                <div class="installer-nav">
+                    <button id="installer-finish">Finish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop -->
+    <div id="desktop">
+        <div class="desktop-icons">
+            <div class="desktop-icon" data-app="file-explorer">
+                <div class="icon">
+                    <i>📁</i>
+                </div>
+                <div class="label">File Explorer</div>
+            </div>
+            <div class="desktop-icon" data-app="text-editor">
+                <div class="icon">
+                    <i>📝</i>
+                </div>
+                <div class="label">Text Editor</div>
+            </div>
+            <div class="desktop-icon" data-app="browser">
+                <div class="icon">
+                    <i>🌐</i>
+                </div>
+                <div class="label">Web Browser</div>
+            </div>
+            <div class="desktop-icon" data-app="terminal">
+                <div class="icon">
+                    <i>💻</i>
+                </div>
+                <div class="label">Terminal</div>
+            </div>
+            <div class="desktop-icon" data-app="media-player">
+                <div class="icon">
+                    <i>🎬</i>
+                </div>
+                <div class="label">Media Player</div>
+            </div>
+            <div class="desktop-icon" data-app="settings">
+                <div class="icon">
+                    <i>⚙️</i>
+                </div>
+                <div class="label">Settings</div>
+            </div>
+            <div class="desktop-icon" data-app="task-manager">
+                <div class="icon">
+                    <i>📊</i>
+                </div>
+                <div class="label">Task Manager</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div id="taskbar">
+        <div class="start-button" id="start-button">
+            <i>🔍</i>
+        </div>
+        <div class="taskbar-items" id="taskbar-items">
+            <!-- Taskbar items will be added dynamically -->
+        </div>
+        <div class="system-tray">
+            <div class="system-tray-item" id="wifi-status">
+                <i>📶</i>
+            </div>
+            <div class="system-tray-item" id="volume-control">
+                <i>🔊</i>
+            </div>
+            <div class="clock" id="clock">00:00</div>
+        </div>
+    </div>
+
+    <!-- Start Menu -->
+    <div id="start-menu">
+        <div class="start-menu-header">
+            <input type="text" class="start-menu-search" placeholder="Search...">
+        </div>
+        <div class="start-menu-apps">
+            <div class="start-menu-app" data-app="file-explorer">
+                <i>📁</i>
+                <span>File Explorer</span>
+            </div>
+            <div class="start-menu-app" data-app="text-editor">
+                <i>📝</i>
+                <span>Text Editor</span>
+            </div>
+            <div class="start-menu-app" data-app="browser">
+                <i>🌐</i>
+                <span>Web Browser</span>
+            </div>
+            <div class="start-menu-app" data-app="terminal">
+                <i>💻</i>
+                <span>Terminal</span>
+            </div>
+            <div class="start-menu-app" data-app="media-player">
+                <i>🎬</i>
+                <span>Media Player</span>
+            </div>
+            <div class="start-menu-app" data-app="settings">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </div>
+            <div class="start-menu-app" data-app="task-manager">
+                <i>📊</i>
+                <span>Task Manager</span>
+            </div>
+        </div>
+        <div class="start-menu-footer">
+            <div class="start-menu-user">
+                <div class="start-menu-user-pic">
+                    <img src="/placeholder.svg?height=30&width=30" alt="User">
+                </div>
+                <div class="start-menu-user-name" id="user-name">User</div>
+            </div>
+            <div class="start-menu-power" id="power-button">
+                <i>⏻</i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu">
+        <div class="context-menu-item" id="context-new-folder">New Folder</div>
+        <div class="context-menu-item" id="context-new-file">New Text Document</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="context-refresh">Refresh</div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="context-personalize">Personalize</div>
+    </div>
+
+    <!-- Application Windows -->
+    <!-- Windows will be created dynamically -->
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <div class="notification-header">
+            <div class="notification-icon">
+                <i>🔔</i>
+            </div>
+            <div class="notification-title" id="notification-title">Notification Title</div>
+            <div class="notification-close" id="notification-close">✕</div>
+        </div>
+        <div class="notification-body" id="notification-body">
+            Notification content goes here.
+        </div>
+    </div>
+
+    <script>
+        // WebOS JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // System Variables
+            let currentUser = null;
+            let activeWindows = [];
+            let windowZIndex = 1000;
+            let activeWindowId = null;
+            let startMenuVisible = false;
+            let installerStep = 1;
+            let wallpaper = 'blue';
+            let theme = 'blue';
+            
+            // DOM Elements
+            const desktop = document.getElementById('desktop');
+            const taskbar = document.getElementById('taskbar');
+            const taskbarItems = document.getElementById('taskbar-items');
+            const startButton = document.getElementById('start-button');
+            const startMenu = document.getElementById('start-menu');
+            const contextMenu = document.getElementById('context-menu');
+            const loginScreen = document.getElementById('login-screen');
+            const installer = document.getElementById('installer');
+            const clock = document.getElementById('clock');
+            const notification = document.getElementById('notification');
+            const userName = document.getElementById('user-name');
+            
+            // Initialize WebOS
+            initWebOS();
+            
+            function initWebOS() {
+                // Check if user is already set up
+                const savedUser = localStorage.getItem('webos_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    showLoginScreen();
+                } else {
+                    // Show installer for first-time setup
+                    document.getElementById('show-installer').addEventListener('click', showInstaller);
+                }
+                
+                // Set up event listeners
+                setupEventListeners();
+                
+                // Start the clock
+                updateClock();
+                setInterval(updateClock, 1000);
+                
+                // Set desktop background
+                updateWallpaper();
+            }
+            
+            function setupEventListeners() {
+                // Login button
+                document.getElementById('login-button').addEventListener('click', attemptLogin);
+                
+                // Installer navigation
+                document.getElementById('installer-next-1').addEventListener('click', () => nextInstallerStep(1));
+                document.getElementById('installer-next-2').addEventListener('click', () => nextInstallerStep(2));
+                document.getElementById('installer-next-3').addEventListener('click', () => nextInstallerStep(3));
+                document.getElementById('installer-next-4').addEventListener('click', () => nextInstallerStep(4));
+                document.getElementById('installer-next-5').addEventListener('click', () => nextInstallerStep(5));
+                document.getElementById('installer-prev-2').addEventListener('click', () => prevInstallerStep(2));
+                document.getElementById('installer-prev-3').addEventListener('click', () => prevInstallerStep(3));
+                document.getElementById('installer-prev-4').addEventListener('click', () => prevInstallerStep(4));
+                document.getElementById('installer-finish').addEventListener('click', finishInstallation);
+                
+                // Start menu
+                startButton.addEventListener('click', toggleStartMenu);
+                document.addEventListener('click', function(e) {
+                    if (startMenuVisible && !startMenu.contains(e.target) && e.target !== startButton) {
+                        hideStartMenu();
+                    }
+                });
+                
+                // Desktop icons
+                const desktopIcons = document.querySelectorAll('.desktop-icon');
+                desktopIcons.forEach(icon => {
+                    icon.addEventListener('click', function() {
+                        const appName = this.getAttribute('data-app');
+                        openApp(appName);
+                    });
+                });
+                
+                // Start menu apps
+                const startMenuApps = document.querySelectorAll('.start-menu-app');
+                startMenuApps.forEach(app => {
+                    app.addEventListener('click', function() {
+                        const appName = this.getAttribute('data-app');
+                        openApp(appName);
+                        hideStartMenu();
+                    });
+                });
+                
+                // Context menu
+                desktop.addEventListener('contextmenu', showContextMenu);
+                document.addEventListener('click', hideContextMenu);
+                document.getElementById('context-personalize').addEventListener('click', function() {
+                    hideContextMenu();
+                    openApp('settings');
+                });
+                
+                // Power button
+                document.getElementById('power-button').addEventListener('click', function() {
+                    showNotification('System', 'Logging out...');
+                    setTimeout(function() {
+                        logout();
+                    }, 2000);
+                });
+                
+                // Notification close
+                document.getElementById('notification-close').addEventListener('click', hideNotification);
+            }
+            
+            function showLoginScreen() {
+                loginScreen.style.display = 'flex';
+                installer.style.display = 'none';
+                desktop.style.display = 'none';
+                taskbar.style.display = 'none';
+            }
+            
+            function showInstaller() {
+                loginScreen.style.display = 'none';
+                installer.style.display = 'flex';
+                desktop.style.display = 'none';
+                taskbar.style.display = 'none';
+                
+                // Reset installer to first step
+                const installerSteps = document.querySelectorAll('.installer-step');
+                installerSteps.forEach(step => step.classList.remove('active'));
+                document.querySelector('.installer-step[data-step="1"]').classList.add('active');
+                installerStep = 1;
+            }
+            
+            function nextInstallerStep(step) {
+                const currentStepEl = document.querySelector(`.installer-step[data-step="${step}"]`);
+                const nextStepEl = document.querySelector(`.installer-step[data-step="${step + 1}"]`);
+                
+                if (step === 3) {
+                    // Validate username and password
+                    const username = document.getElementById('setup-username').value;
+                    const password = document.getElementById('setup-password').value;
+                    
+                    if (!username || !password) {
+                        showNotification('Error', 'Username and password are required.');
+                        return;
+                    }
+                }
+                
+                if (step === 4) {
+                    // Save preferences
+                    wallpaper = document.getElementById('setup-wallpaper').value;
+                    theme = document.getElementById('setup-theme').value;
+                    
+                    // Start installation progress
+                    simulateInstallation();
+                }
+                
+                currentStepEl.classList.remove('active');
+                nextStepEl.classList.add('active');
+                installerStep = step + 1;
+            }
+            
+            function prevInstallerStep(step) {
+                const currentStepEl = document.querySelector(`.installer-step[data-step="${step}"]`);
+                const prevStepEl = document.querySelector(`.installer-step[data-step="${step - 1}"]`);
+                
+                currentStepEl.classList.remove('active');
+                prevStepEl.classList.add('active');
+                installerStep = step - 1;
+            }
+            
+            function simulateInstallation() {
+                const progressBar = document.getElementById('install-progress');
+                const nextButton = document.getElementById('installer-next-5');
+                let progress = 0;
+                
+                const interval = setInterval(function() {
+                    progress += 5;
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        nextButton.disabled = false;
+                    }
+                }, 200);
+            }
+            
+            function finishInstallation() {
+                // Save user data
+                const username = document.getElementById('setup-username').value;
+                const password = document.getElementById('setup-password').value;
+                
+                currentUser = {
+                    username: username,
+                    password: password,
+                    wallpaper: wallpaper,
+                    theme: theme,
+                    created: new Date().toISOString()
+                };
+                
+                localStorage.setItem('webos_user', JSON.stringify(currentUser));
+                
+                // Show login screen
+                showLoginScreen();
+                showNotification('Installation Complete', 'WebOS has been successfully installed.');
+            }
+            
+            function attemptLogin() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (username === currentUser.username && password === currentUser.password) {
+                    loginSuccess();
+                } else {
+                    showNotification('Error', 'Invalid username or password.');
+                }
+            }
+            
+            function loginSuccess() {
+                // Hide login screen
+                loginScreen.style.display = 'none';
+                
+                // Show desktop and taskbar
+                desktop.style.display = 'block';
+                taskbar.style.display = 'flex';
+                
+                // Set user name
+                userName.textContent = currentUser.username;
+                
+                // Apply user preferences
+                wallpaper = currentUser.wallpaper;
+                theme = currentUser.theme;
+                updateWallpaper();
+                
+                // Show welcome notification
+                showNotification('Welcome', `Welcome back, ${currentUser.username}!`);
+            }
+            
+            function logout() {
+                // Close all windows
+                closeAllWindows();
+                
+                // Hide desktop and taskbar
+                desktop.style.display = 'none';
+                taskbar.style.display = 'none';
+                
+                // Show login screen
+                showLoginScreen();
+                
+                // Clear login form
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }
+            
+            function updateWallpaper() {
+                let wallpaperUrl;
+                
+                switch (wallpaper) {
+                    case 'mountain':
+                        wallpaperUrl = 'linear-gradient(135deg, #1e3c72, #2a5298)';
+                        break;
+                    case 'abstract':
+                        wallpaperUrl = 'linear-gradient(135deg, #4b6cb7, #182848)';
+                        break;
+                    case 'blue':
+                    default:
+                        wallpaperUrl = 'linear-gradient(135deg, #0078d7, #005a9e)';
+                        break;
+                }
+                
+                desktop.style.background = wallpaperUrl;
+            }
+            
+            function updateClock() {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                clock.textContent = `${hours}:${minutes}`;
+            }
+            
+            function toggleStartMenu() {
+                if (startMenuVisible) {
+                    hideStartMenu();
+                } else {
+                    showStartMenu();
+                }
+            }
+            
+            function showStartMenu() {
+                startMenu.style.display = 'flex';
+                startMenuVisible = true;
+            }
+            
+            function hideStartMenu() {
+                startMenu.style.display = 'none';
+                startMenuVisible = false;
+            }
+            
+            function showContextMenu(e) {
+                e.preventDefault();
+                
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = e.pageX + 'px';
+                contextMenu.style.top = e.pageY + 'px';
+            }
+            
+            function hideContextMenu() {
+                contextMenu.style.display = 'none';
+            }
+            
+            function showNotification(title, message) {
+                document.getElementById('notification-title').textContent = title;
+                document.getElementById('notification-body').textContent = message;
+                notification.classList.add('show');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(hideNotification, 5000);
+            }
+            
+            function hideNotification() {
+                notification.classList.remove('show');
+            }
+            
+            function openApp(appName) {
+                // Check if app is already open
+                const existingWindow = activeWindows.find(w => w.app === appName);
+                if (existingWindow) {
+                    focusWindow(existingWindow.id);
+                    return;
+                }
+                
+                // Create new window
+                const windowId = 'window-' + Date.now();
+                const windowTitle = getAppTitle(appName);
+                const windowContent = getAppContent(appName);
+                
+                const windowElement = document.createElement('div');
+                windowElement.className = 'window ' + appName;
+                windowElement.id = windowId;
+                windowElement.style.width = '600px';
+                windowElement.style.height = '400px';
+                windowElement.style.left = '100px';
+                windowElement.style.top = '100px';
+                windowElement.style.zIndex = ++windowZIndex;
+                
+                windowElement.innerHTML = `
+                    <div class="window-titlebar">
+                        <div class="window-title">${windowTitle}</div>
+                        <div class="window-controls">
+                            <div class="window-control window-minimize" data-window="${windowId}" data-action="minimize">-</div>
+                            <div class="window-control window-maximize" data-window="${windowId}" data-action="maximize">□</div>
+                            <div class="window-control window-close" data-window="${windowId}" data-action="close">×</div>
+                        </div>
+                    </div>
+                    <div class="window-content">
+                        ${windowContent}
+                    </div>
+                `;
+                
+                desktop.appendChild(windowElement);
+                
+                // Add to active windows
+                activeWindows.push({
+                    id: windowId,
+                    app: appName,
+                    title: windowTitle,
+                    minimized: false
+                });
+                
+                // Add to taskbar
+                addTaskbarItem(windowId, appName, windowTitle);
+                
+                // Set as active window
+                focusWindow(windowId);
+                
+                // Set up window controls
+                setupWindowControls(windowId);
+                
+                // Initialize app-specific functionality
+                initializeApp(appName, windowId);
+            }
+            
+            function getAppTitle(appName) {
+                switch (appName) {
+                    case 'file-explorer': return 'File Explorer';
+                    case 'text-editor': return 'Text Editor';
+                    case 'browser': return 'Web Browser';
+                    case 'terminal': return 'Terminal';
+                    case 'media-player': return 'Media Player';
+                    case 'settings': return 'Settings';
+                    case 'task-manager': return 'Task Manager';
+                    default: return 'Application';
+                }
+            }
+            
+            function getAppContent(appName) {
+                switch (appName) {
+                    case 'file-explorer':
+                        return `
+                            <div class="file-explorer-sidebar">
+                                <div class="file-explorer-sidebar-item">Desktop</div>
+                                <div class="file-explorer-sidebar-item">Documents</div>
+                                <div class="file-explorer-sidebar-item">Pictures</div>
+                                <div class="file-explorer-sidebar-item">Music</div>
+                                <div class="file-explorer-sidebar-item">Videos</div>
+                            </div>
+                            <div class="file-explorer-main">
+                                <div class="file-explorer-address">
+                                    <input type="text" value="C:\\Users\\${currentUser.username}\\Desktop" readonly>
+                                </div>
+                                <div class="file-explorer-files">
+                                    <div class="file-item">
+                                        <div class="file-item-icon">📁</div>
+                                        <div class="file-item-name">Documents</div>
+                                    </div>
+                                    <div class="file-item">
+                                        <div class="file-item-icon">📁</div>
+                                        <div class="file-item-name">Pictures</div>
+                                    </div>
+                                    <div class="file-item">
+                                        <div class="file-item-icon">📄</div>
+                                        <div class="file-item-name">Readme.txt</div>
+                                    </div>
+                                    <div class="file-item">
+                                        <div class="file-item-icon">📄</div>
+                                        <div class="file-item-name">Notes.txt</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    
+                    case 'text-editor':
+                        return `
+                            <div class="text-editor-toolbar">
+                                <div class="text-editor-tool">File</div>
+                                <div class="text-editor-tool">Edit</div>
+                                <div class="text-editor-tool">View</div>
+                                <div class="text-editor-tool">Help</div>
+                            </div>
+                            <div class="text-editor-content">
+                                <textarea class="text-editor-textarea" placeholder="Start typing..."></textarea>
+                            </div>
+                        `;
+                    
+                    case 'browser':
+                        return `
+                            <div class="browser-toolbar">
+                                <div class="browser-nav">
+                                    <div class="browser-nav-button" id="browser-back">◀</div>
+                                    <div class="browser-nav-button" id="browser-forward">▶</div>
+                                    <div class="browser-nav-button" id="browser-refresh">↻</div>
+                                </div>
+                                <div class="browser-address">
+                                    <input type="text" value="https://example.com" id="browser-url">
+                                </div>
+                            </div>
+                            <iframe class="browser-content" src="about:blank" sandbox="allow-same-origin allow-scripts"></iframe>
+                        `;
+                    
+                    case 'terminal':
+                        return `
+                            <div class="terminal-output" id="terminal-output">Welcome to WebOS Terminal
+C:\\Users\\${currentUser.username}></div>
+                            <div class="terminal-input-line">
+                                <div class="terminal-prompt">C:\\Users\\${currentUser.username}></div>
+                                <input type="text" class="terminal-input" id="terminal-input">
+                            </div>
+                        `;
+                    
+                    case 'media-player':
+                        return `
+                            <div class="media-player-video">
+                                <video id="media-player-video-element" width="100%" height="100%" controls>
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                            <div class="media-player-controls">
+                                <div class="media-player-button" id="media-play">▶</div>
+                                <div class="media-player-button" id="media-pause">⏸</div>
+                                <div class="media-player-button" id="media-stop">⏹</div>
+                                <div class="media-player-progress">
+                                    <div class="media-player-progress-bar" id="media-progress"></div>
+                                </div>
+                                <div class="media-player-time" id="media-time">00:00 / 00:00</div>
+                            </div>
+                        `;
+                    
+                    case 'settings':
+                        return `
+                            <div class="settings-sidebar">
+                                <div class="settings-sidebar-item active" data-section="personalization">Personalization</div>
+                                <div class="settings-sidebar-item" data-section="system">System</div>
+                                <div class="settings-sidebar-item" data-section="accounts">Accounts</div>
+                                <div class="settings-sidebar-item" data-section="about">About</div>
+                            </div>
+                            <div class="settings-main">
+                                <div class="settings-section active" id="settings-personalization">
+                                    <h3>Personalization</h3>
+                                    <div class="settings-option">
+                                        <label>Background</label>
+                                        <select id="settings-wallpaper">
+                                            <option value="blue">Blue Gradient</option>
+                                            <option value="mountain">Mountain View</option>
+                                            <option value="abstract">Abstract Art</option>
+                                        </select>
+                                    </div>
+                                    <div class="settings-option">
+                                        <label>Color theme</label>
+                                        <select id="settings-theme">
+                                            <option value="blue">Blue (Default)</option>
+                                            <option value="dark">Dark</option>
+                                            <option value="light">Light</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="settings-section" id="settings-system">
+                                    <h3>System</h3>
+                                    <div class="settings-option">
+                                        <label>Storage</label>
+                                        <div style="height: 20px; background-color: #f0f0f0; border-radius: 3px; overflow: hidden;">
+                                            <div style="width: 35%; height: 100%; background-color: #0078d7;"></div>
+                                        </div>
+                                        <div style="font-size: 12px; color: #666; margin-top: 5px;">3.5 GB used of 10 GB</div>
+                                    </div>
+                                </div>
+                                <div class="settings-section" id="settings-accounts">
+                                    <h3>Accounts</h3>
+                                    <div class="settings-option">
+                                        <label>Current user</label>
+                                        <input type="text" value="${currentUser.username}" readonly>
+                                    </div>
+                                    <div class="settings-option">
+                                        <label>Change password</label>
+                                        <input type="password" placeholder="New password">
+                                    </div>
+                                    <div class="settings-option">
+                                        <button style="padding: 8px 15px; background-color: #0078d7; color: white; border: none; border-radius: 3px; cursor: pointer;">Save Changes</button>
+                                    </div>
+                                </div>
+                                <div class="settings-section" id="settings-about">
+                                    <h3>About WebOS</h3>
+                                    <div style="line-height: 1.6; color: #666;">
+                                        <p>WebOS Version 1.0</p>
+                                        <p>A complete web-based operating system</p>
+                                        <p>Created: ${new Date().toLocaleDateString()}</p>
+                                        <p>© 2025 WebOS</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    
+                    case 'task-manager':
+                        return `
+                            <div class="task-manager-tabs">
+                                <div class="task-manager-tab active" data-tab="processes">Processes</div>
+                                <div class="task-manager-tab" data-tab="performance">Performance</div>
+                            </div>
+                            <div class="task-manager-content">
+                                <div class="task-manager-section active" id="task-manager-processes">
+                                    <table class="task-list">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>CPU</th>
+                                                <th>Memory</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="process-list">
+                                            <!-- Processes will be added dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="task-manager-section" id="task-manager-performance">
+                                    <h3>CPU Usage</h3>
+                                    <div class="performance-graph">
+                                        <div class="performance-graph-line" id="cpu-graph" style="height: 30%;"></div>
+                                    </div>
+                                    <h3>Memory Usage</h3>
+                                    <div class="performance-graph">
+                                        <div class="performance-graph-line" id="memory-graph" style="height: 45%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    
+                    default:
+                        return '<div>Application content not available.</div>';
+                }
+            }
+            
+            function setupWindowControls(windowId) {
+                const windowElement = document.getElementById(windowId);
+                const titleBar = windowElement.querySelector('.window-titlebar');
+                
+                // Make window draggable by title bar
+                titleBar.addEventListener('mousedown', function(e) {
+                    if (e.target !== titleBar) return;
+                    
+                    focusWindow(windowId);
+                    
+                    const rect = windowElement.getBoundingClientRect();
+                    const offsetX = e.clientX - rect.left;
+                    const offsetY = e.clientY - rect.top;
+                    
+                    function moveWindow(e) {
+                        windowElement.style.left = (e.clientX - offsetX) + 'px';
+                        windowElement.style.top = (e.clientY - offsetY) + 'px';
+                    }
+                    
+                    function stopMoving() {
+                        document.removeEventListener('mousemove', moveWindow);
+                        document.removeEventListener('mouseup', stopMoving);
+                    }
+                    
+                    document.addEventListener('mousemove', moveWindow);
+                    document.addEventListener('mouseup', stopMoving);
+                });
+                
+                // Window control buttons
+                const controls = windowElement.querySelectorAll('.window-control');
+                controls.forEach(control => {
+                    control.addEventListener('click', function() {
+                        const action = this.getAttribute('data-action');
+                        const targetWindow = this.getAttribute('data-window');
+                        
+                        switch (action) {
+                            case 'minimize':
+                                minimizeWindow(targetWindow);
+                                break;
+                            case 'maximize':
+                                maximizeWindow(targetWindow);
+                                break;
+                            case 'close':
+                                closeWindow(targetWindow);
+                                break;
+                        }
+                    });
+                });
+                
+                // Focus window on click
+                windowElement.addEventListener('mousedown', function() {
+                    focusWindow(windowId);
+                });
+            }
+            
+            function addTaskbarItem(windowId, appName, title) {
+                const taskbarItem = document.createElement('div');
+                taskbarItem.className = 'taskbar-item';
+                taskbarItem.setAttribute('data-window', windowId);
+                taskbarItem.innerHTML = `<i>${getAppIcon(appName)}</i> ${title}`;
+                
+                taskbarItem.addEventListener('click', function() {
+                    const targetWindow = this.getAttribute('data-window');
+                    const windowObj = activeWindows.find(w => w.id === targetWindow);
+                    
+                    if (windowObj.minimized) {
+                        restoreWindow(targetWindow);
+                    } else if (activeWindowId === targetWindow) {
+                        minimizeWindow(targetWindow);
+                    } else {
+                        focusWindow(targetWindow);
+                    }
+                });
+                
+                taskbarItems.appendChild(taskbarItem);
+            }
+            
+            function getAppIcon(appName) {
+                switch (appName) {
+                    case 'file-explorer': return '📁';
+                    case 'text-editor': return '📝';
+                    case 'browser': return '🌐';
+                    case 'terminal': return '💻';
+                    case 'media-player': return '🎬';
+                    case 'settings': return '⚙️';
+                    case 'task-manager': return '📊';
+                    default: return '📄';
+                }
+            }
+            
+            function focusWindow(windowId) {
+                // Update active window
+                activeWindowId = windowId;
+                
+                // Update z-index
+                const windowElement = document.getElementById(windowId);
+                windowElement.style.zIndex = ++windowZIndex;
+                
+                // Update taskbar
+                const taskbarItems = document.querySelectorAll('.taskbar-item');
+                taskbarItems.forEach(item => {
+                    if (item.getAttribute('data-window') === windowId) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                // Update window object
+                const windowObj = activeWindows.find(w => w.id === windowId);
+                if (windowObj) {
+                    windowObj.minimized = false;
+                }
+            }
+            
+            function minimizeWindow(windowId) {
+                const windowElement = document.getElementById(windowId);
+                windowElement.style.display = 'none';
+                
+                // Update window object
+                const windowObj = activeWindows.find(w => w.id === windowId);
+                if (windowObj) {
+                    windowObj.minimized = true;
+                }
+                
+                // Update taskbar
+                const taskbarItem = document.querySelector(`.taskbar-item[data-window="${windowId}"]`);
+                if (taskbarItem) {
+                    taskbarItem.classList.remove('active');
+                }
+                
+                // Clear active window if it's the minimized one
+                if (activeWindowId === windowId) {
+                    activeWindowId = null;
+                }
+            }
+            
+            function restoreWindow(windowId) {
+                const windowElement = document.getElementById(windowId);
+                windowElement.style.display = 'flex';
+                
+                focusWindow(windowId);
+            }
+            
+            function maximizeWindow(windowId) {
+                const windowElement = document.getElementById(windowId);
+                
+                if (windowElement.style.width === '100%' && windowElement.style.height === 'calc(100% - 40px)') {
+                    // Restore to previous size
+                    windowElement.style.width = windowElement.getAttribute('data-prev-width') || '600px';
+                    windowElement.style.height = windowElement.getAttribute('data-prev-height') || '400px';
+                    windowElement.style.left = windowElement.getAttribute('data-prev-left') || '100px';
+                    windowElement.style.top = windowElement.getAttribute('data-prev-top') || '100px';
+                } else {
+                    // Save current size
+                    windowElement.setAttribute('data-prev-width', windowElement.style.width);
+                    windowElement.setAttribute('data-prev-height', windowElement.style.height);
+                    windowElement.setAttribute('data-prev-left', windowElement.style.left);
+                    windowElement.setAttribute('data-prev-top', windowElement.style.top);
+                    
+                    // Maximize
+                    windowElement.style.width = '100%';
+                    windowElement.style.height = 'calc(100% - 40px)';
+                    windowElement.style.left = '0';
+                    windowElement.style.top = '0';
+                }
+                
+                focusWindow(windowId);
+            }
+            
+            function closeWindow(windowId) {
+                // Remove window element
+                const windowElement = document.getElementById(windowId);
+                if (windowElement) {
+                    windowElement.remove();
+                }
+                
+                // Remove from active windows
+                activeWindows = activeWindows.filter(w => w.id !== windowId);
+                
+                // Remove from taskbar
+                const taskbarItem = document.querySelector(`.taskbar-item[data-window="${windowId}"]`);
+                if (taskbarItem) {
+                    taskbarItem.remove();
+                }
+                
+                // Clear active window if it's the closed one
+                if (activeWindowId === windowId) {
+                    activeWindowId = null;
+                }
+            }
+            
+            function closeAllWindows() {
+                // Clone the array to avoid modification during iteration
+                const windowsToClose = [...activeWindows];
+                windowsToClose.forEach(window => {
+                    closeWindow(window.id);
+                });
+            }
+            
+            function initializeApp(appName, windowId) {
+                const windowElement = document.getElementById(windowId);
+                
+                switch (appName) {
+                    case 'terminal':
+                        const terminalInput = windowElement.querySelector('#terminal-input');
+                        const terminalOutput = windowElement.querySelector('#terminal-output');
+                        
+                        terminalInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                const command = this.value;
+                                terminalOutput.innerHTML += `\nC:\\Users\\${currentUser.username}> ${command}`;
+                                
+                                // Process command
+                                let response = '';
+                                switch (command.toLowerCase()) {
+                                    case 'help':
+                                        response = '\nAvailable commands: help, echo, dir, cls, exit';
+                                        break;
+                                    case 'cls':
+                                        terminalOutput.innerHTML = '';
+                                        this.value = '';
+                                        return;
+                                    case 'dir':
+                                        response = '\nDirectory of C:\\Users\\' + currentUser.username + '\n\n' +
+                                                  '04/01/2025  10:00 AM    <DIR>          Documents\n' +
+                                                  '04/01/2025  10:00 AM    <DIR>          Pictures\n' +
+                                                  '04/01/2025  10:00 AM               512 Readme.txt\n' +
+                                                  '04/01/2025  10:00 AM               256 Notes.txt';
+                                        break;
+                                    case 'exit':
+                                        closeWindow(windowId);
+                                        return;
+                                    default:
+                                        if (command.toLowerCase().startsWith('echo ')) {
+                                            response = '\n' + command.substring(5);
+                                        } else {
+                                            response = '\n\'' + command + '\' is not recognized as an internal or external command.';
+                                        }
+                                }
+                                
+                                terminalOutput.innerHTML += response + '\n';
+                                this.value = '';
+                                
+                                // Scroll to bottom
+                                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                            }
+                        });
+                        
+                        // Focus input
+                        terminalInput.focus();
+                        break;
+                        
+                    case 'browser':
+                        const browserUrl = windowElement.querySelector('#browser-url');
+                        const browserContent = windowElement.querySelector('.browser-content');
+                        const browserBack = windowElement.querySelector('#browser-back');
+                        const browserForward = windowElement.querySelector('#browser-forward');
+                        const browserRefresh = windowElement.querySelector('#browser-refresh');
+                        
+                        // Load default page
+                        browserContent.src = 'about:blank';
+                        
+                        // URL input
+                        browserUrl.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                let url = this.value;
+                                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                                    url = 'https://' + url;
+                                }
+                                
+                                // For demo purposes, we'll just show a blank page
+                                browserContent.src = 'about:blank';
+                                this.value = url;
+                            }
+                        });
+                        
+                        // Navigation buttons
+                        browserBack.addEventListener('click', function() {
+                            // Not implemented in demo
+                        });
+                        
+                        browserForward.addEventListener('click', function() {
+                            // Not implemented in demo
+                        });
+                        
+                        browserRefresh.addEventListener('click', function() {
+                            browserContent.src = browserContent.src;
+                        });
+                        break;
+                        
+                    case 'settings':
+                        const settingsSidebar = windowElement.querySelectorAll('.settings-sidebar-item');
+                        const settingsWallpaper = windowElement.querySelector('#settings-wallpaper');
+                        const settingsTheme = windowElement.querySelector('#settings-theme');
+                        
+                        // Set current values
+                        settingsWallpaper.value = wallpaper;
+                        settingsTheme.value = theme;
+                        
+                        // Settings navigation
+                        settingsSidebar.forEach(item => {
+                            item.addEventListener('click', function() {
+                                const section = this.getAttribute('data-section');
+                                
+                                // Update sidebar
+                                settingsSidebar.forEach(i => i.classList.remove('active'));
+                                this.classList.add('active');
+                                
+                                // Update content
+                                const sections = windowElement.querySelectorAll('.settings-section');
+                                sections.forEach(s => s.classList.remove('active'));
+                                windowElement.querySelector('#settings-' + section).classList.add('active');
+                            });
+                        });
+                        
+                        // Apply settings
+                        settingsWallpaper.addEventListener('change', function() {
+                            wallpaper = this.value;
+                            updateWallpaper();
+                            
+                            // Save to user preferences
+                            currentUser.wallpaper = wallpaper;
+                            localStorage.setItem('webos_user', JSON.stringify(currentUser));
+                            
+                            showNotification('Settings', 'Wallpaper updated.');
+                        });
+                        
+                        settingsTheme.addEventListener('change', function() {
+                            theme = this.value;
+                            
+                            // Save to user preferences
+                            currentUser.theme = theme;
+                            localStorage.setItem('webos_user', JSON.stringify(currentUser));
+                            
+                            showNotification('Settings', 'Theme updated.');
+                        });
+                        break;
+                        
+                    case 'task-manager':
+                        const taskManagerTabs = windowElement.querySelectorAll('.task-manager-tab');
+                        const processList = windowElement.querySelector('#process-list');
+                        const cpuGraph = windowElement.querySelector('#cpu-graph');
+                        const memoryGraph = windowElement.querySelector('#memory-graph');
+                        
+                        // Task Manager navigation
+                        taskManagerTabs.forEach(tab => {
+                            tab.addEventListener('click', function() {
+                                const tabName = this.getAttribute('data-tab');
+                                
+                                // Update tabs
+                                taskManagerTabs.forEach(t => t.classList.remove('active'));
+                                this.classList.add('active');
+                                
+                                // Update content
+                                const sections = windowElement.querySelectorAll('.task-manager-section');
+                                sections.forEach(s => s.classList.remove('active'));
+                                windowElement.querySelector('#task-manager-' + tabName).classList.add('active');
+                            });
+                        });
+                        
+                        // Populate process list
+                        updateProcessList(processList);
+                        
+                        // Simulate performance graphs
+                        simulatePerformance(cpuGraph, memoryGraph);
+                        break;
+                        
+                    case 'text-editor':
+                        // Nothing special to initialize
+                        break;
+                        
+                    case 'file-explorer':
+                        // Nothing special to initialize
+                        break;
+                        
+                    case 'media-player':
+                        // Nothing special to initialize
+                        break;
+                }
+            }
+            
+            function updateProcessList(processList) {
+                // Clear existing rows
+                processList.innerHTML = '';
+                
+                // Add rows for active windows
+                activeWindows.forEach(window => {
+                    const row = document.createElement('tr');
+                    
+                    const cpuUsage = Math.floor(Math.random() * 10);
+                    const memoryUsage = Math.floor(Math.random() * 100) + 'MB';
+                    
+                    row.innerHTML = `
+                        <td>${window.title}</td>
+                        <td>${window.minimized ? 'Minimized' : 'Running'}</td>
+                        <td>${cpuUsage}%</td>
+                        <td>${memoryUsage}</td>
+                        <td><button class="end-task" data-window="${window.id}">End Task</button></td>
+                    `;
+                    
+                    processList.appendChild(row);
+                });
+                
+                // Add system processes
+                const systemProcesses = [
+                    { name: 'System', cpu: '1%', memory: '120MB' },
+                    { name: 'WebOS Core', cpu: '2%', memory: '85MB' },
+                    { name: 'Window Manager', cpu: '3%', memory: '64MB' }
+                ];
+                
+                systemProcesses.forEach(process => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${process.name}</td>
+                        <td>Running</td>
+                        <td>${process.cpu}</td>
+                        <td>${process.memory}</td>
+                        <td><button class="end-task" disabled>End Task</button></td>
+                    `;
+                    
+                    processList.appendChild(row);
+                });
+                
+                // Add event listeners to End Task buttons
+                const endTaskButtons = processList.querySelectorAll('.end-task:not([disabled])');
+                endTaskButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const windowId = this.getAttribute('data-window');
+                        closeWindow(windowId);
+                        updateProcessList(processList);
+                    });
+                });
+            }
+            
+            function simulatePerformance(cpuGraph, memoryGraph) {
+                // Simulate random CPU and memory usage
+                setInterval(function() {
+                    const cpuUsage = Math.floor(Math.random() * 60) + 10;
+                    const memoryUsage = Math.floor(Math.random() * 40) + 30;
+                    
+                    cpuGraph.style.height = cpuUsage + '%';
+                    memoryGraph.style.height = memoryUsage + '%';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
